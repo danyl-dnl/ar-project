@@ -165,7 +165,7 @@
     </div>
 
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind?v=2; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 10; warmupTolerance: 5;"
+      mindar-image="imageTargetSrc: assets/targets.mind?v=3; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0005; filterBeta: 0.01; missTolerance: 5; warmupTolerance: 3;"
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
       vr-mode-ui="enabled: false"
@@ -191,10 +191,10 @@
         <a-video
           id="videoPlane"
           src="#arVideo"
-          position="0 0.15 0"
+          position="0 0 0"
           rotation="0 0 0"
           width="1"
-          height="1"
+          height="1.3393"
           material="shader: flat; src: #arVideo"
         ></a-video>
       </a-entity>
@@ -261,12 +261,14 @@
         }
       };
 
-      const fitPlaneToVideo = () => {
-        if (!video.videoWidth || !video.videoHeight) return;
-        const aspect = video.videoWidth / video.videoHeight;
+      // Use the TARGET IMAGE aspect ratio (from .mind file: 1792×2400)
+      // instead of the video file dimensions. This ensures the video plane
+      // perfectly covers the poster regardless of video encoding resolution.
+      const TARGET_RATIO = 2400 / 1792; // ≈ 1.3393
 
+      const fitPlaneToVideo = () => {
         plane.setAttribute("width", 1);
-        plane.setAttribute("height", 1 / aspect);
+        plane.setAttribute("height", TARGET_RATIO);
       };
 
       const primeVideoPlayback = async () => {
