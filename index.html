@@ -150,6 +150,99 @@
           transform: rotate(360deg);
         }
       }
+
+      /* ── CALIBRATION PANEL ── */
+      .calib-toggle {
+        position: fixed;
+        bottom: max(16px, env(safe-area-inset-bottom));
+        right: 16px;
+        z-index: 30;
+        width: 44px;
+        height: 44px;
+        border: 1px solid rgb(255 255 255 / 0.2);
+        border-radius: 50%;
+        background: rgb(0 0 0 / 0.6);
+        color: #fff;
+        font-size: 20px;
+        line-height: 1;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .calib-panel {
+        position: fixed;
+        bottom: max(70px, calc(env(safe-area-inset-bottom) + 56px));
+        right: 12px;
+        z-index: 30;
+        width: 260px;
+        padding: 14px 16px;
+        border: 1px solid rgb(255 255 255 / 0.15);
+        border-radius: 16px;
+        background: rgb(0 0 0 / 0.78);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        font-size: 12px;
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        touch-action: auto;
+      }
+
+      .calib-panel.is-open {
+        display: flex;
+      }
+
+      .calib-panel label {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        color: rgb(255 255 255 / 0.8);
+        font-weight: 600;
+      }
+
+      .calib-panel input[type="range"] {
+        width: 100%;
+        accent-color: #51e083;
+      }
+
+      .calib-panel .calib-value {
+        color: #51e083;
+        font-family: monospace;
+        font-weight: 700;
+        font-size: 13px;
+        min-width: 60px;
+        text-align: right;
+      }
+
+      .calib-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+
+      .calib-panel .calib-output {
+        margin-top: 4px;
+        padding: 8px;
+        border-radius: 8px;
+        background: rgb(255 255 255 / 0.08);
+        font-family: monospace;
+        font-size: 11px;
+        color: #fff;
+        word-break: break-all;
+        line-height: 1.5;
+      }
+
+      .calib-panel .calib-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0;
+      }
     </style>
   </head>
 
@@ -164,8 +257,42 @@
       <button id="tapButton" type="button">Tap to allow camera</button>
     </div>
 
+    <!-- CALIBRATION UI -->
+    <button id="calibToggle" class="calib-toggle" aria-label="Calibration">⚙</button>
+    <div id="calibPanel" class="calib-panel">
+      <p class="calib-title">🎯 Video Alignment</p>
+
+      <label>
+        <div class="calib-row">
+          <span>Scale</span>
+          <span id="scaleVal" class="calib-value">0.88</span>
+        </div>
+        <input type="range" id="scaleSlider" min="0.5" max="1.2" step="0.005" value="0.88" />
+      </label>
+
+      <label>
+        <div class="calib-row">
+          <span>X Offset</span>
+          <span id="xVal" class="calib-value">0.000</span>
+        </div>
+        <input type="range" id="xSlider" min="-0.3" max="0.3" step="0.005" value="0" />
+      </label>
+
+      <label>
+        <div class="calib-row">
+          <span>Y Offset</span>
+          <span id="yVal" class="calib-value">0.000</span>
+        </div>
+        <input type="range" id="ySlider" min="-0.3" max="0.3" step="0.005" value="0" />
+      </label>
+
+      <div class="calib-output" id="calibOutput">
+        position="0 0 0" width="0.88" height="1.178"
+      </div>
+    </div>
+
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind?v=3; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0005; filterBeta: 0.01; missTolerance: 5; warmupTolerance: 3;"
+      mindar-image="imageTargetSrc: assets/targets.mind?v=4; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0005; filterBeta: 0.01; missTolerance: 5; warmupTolerance: 3;"
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
       vr-mode-ui="enabled: false"
@@ -193,8 +320,8 @@
           src="#arVideo"
           position="0 0 0"
           rotation="0 0 0"
-          width="1"
-          height="1.3393"
+          width="0.88"
+          height="1.178"
           material="shader: flat; src: #arVideo"
         ></a-video>
       </a-entity>
@@ -261,15 +388,48 @@
         }
       };
 
-      // Use the TARGET IMAGE aspect ratio (from .mind file: 1792×2400)
-      // instead of the video file dimensions. This ensures the video plane
-      // perfectly covers the poster regardless of video encoding resolution.
+      /* ================================================================
+         CALIBRATION SYSTEM — live-adjust on phone
+         ================================================================ */
       const TARGET_RATIO = 2400 / 1792; // ≈ 1.3393
 
-      const fitPlaneToVideo = () => {
-        plane.setAttribute("width", 1);
-        plane.setAttribute("height", TARGET_RATIO);
+      const calibToggle = document.getElementById("calibToggle");
+      const calibPanel = document.getElementById("calibPanel");
+      const scaleSlider = document.getElementById("scaleSlider");
+      const xSlider = document.getElementById("xSlider");
+      const ySlider = document.getElementById("ySlider");
+      const scaleVal = document.getElementById("scaleVal");
+      const xVal = document.getElementById("xVal");
+      const yVal = document.getElementById("yVal");
+      const calibOutput = document.getElementById("calibOutput");
+
+      calibToggle.addEventListener("click", () => {
+        calibPanel.classList.toggle("is-open");
+      });
+
+      const applyCalibration = () => {
+        const s = parseFloat(scaleSlider.value);
+        const x = parseFloat(xSlider.value);
+        const y = parseFloat(ySlider.value);
+
+        const w = s;
+        const h = s * TARGET_RATIO;
+
+        scaleVal.textContent = s.toFixed(3);
+        xVal.textContent = x.toFixed(3);
+        yVal.textContent = y.toFixed(3);
+
+        plane.setAttribute("width", w);
+        plane.setAttribute("height", h);
+        plane.setAttribute("position", `${x} ${y} 0`);
+
+        calibOutput.textContent =
+          `position="${x} ${y} 0" width="${w.toFixed(4)}" height="${h.toFixed(4)}"`;
       };
+
+      scaleSlider.addEventListener("input", applyCalibration);
+      xSlider.addEventListener("input", applyCalibration);
+      ySlider.addEventListener("input", applyCalibration);
 
       const primeVideoPlayback = async () => {
         try {
@@ -331,8 +491,6 @@
           starting = false;
         }
       };
-
-      video.addEventListener("loadedmetadata", fitPlaneToVideo, { once: true });
 
       checkRequiredAsset("assets/targets.mind", "AR target");
       checkRequiredAsset("assets/video.mp4", "Video");
