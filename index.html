@@ -265,34 +265,34 @@
       <label>
         <div class="calib-row">
           <span>Scale</span>
-          <span id="scaleVal" class="calib-value">0.88</span>
+          <span id="scaleVal" class="calib-value">1.035</span>
         </div>
-        <input type="range" id="scaleSlider" min="0.5" max="1.2" step="0.005" value="0.88" />
+        <input type="range" id="scaleSlider" min="0.5" max="1.5" step="0.005" value="1.035" />
       </label>
 
       <label>
         <div class="calib-row">
           <span>X Offset</span>
-          <span id="xVal" class="calib-value">0.000</span>
+          <span id="xVal" class="calib-value">0.010</span>
         </div>
-        <input type="range" id="xSlider" min="-0.3" max="0.3" step="0.005" value="0" />
+        <input type="range" id="xSlider" min="-0.3" max="0.3" step="0.005" value="0.01" />
       </label>
 
       <label>
         <div class="calib-row">
           <span>Y Offset</span>
-          <span id="yVal" class="calib-value">0.000</span>
+          <span id="yVal" class="calib-value">0.205</span>
         </div>
-        <input type="range" id="ySlider" min="-0.3" max="0.3" step="0.005" value="0" />
+        <input type="range" id="ySlider" min="-0.3" max="0.3" step="0.005" value="0.205" />
       </label>
 
       <div class="calib-output" id="calibOutput">
-        position="0 0 0" width="0.88" height="1.178"
+        position="0.01 0.205 0" width="1.0350" height="1.3862"
       </div>
     </div>
 
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind?v=4; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0005; filterBeta: 0.01; missTolerance: 5; warmupTolerance: 3;"
+      mindar-image="imageTargetSrc: assets/targets.mind?v=4; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 5; warmupTolerance: 2;"
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
       vr-mode-ui="enabled: false"
@@ -318,10 +318,10 @@
         <a-video
           id="videoPlane"
           src="#arVideo"
-          position="0 0 0"
+          position="0.01 0.205 0"
           rotation="0 0 0"
-          width="0.88"
-          height="1.178"
+          width="1.0350"
+          height="1.3862"
           material="shader: flat; src: #arVideo"
         ></a-video>
       </a-entity>
