@@ -141,51 +141,8 @@
         font-size: 13px;
         line-height: 1.35;
         text-align: center;
+        backdrop-filter: blur(14px);
         -webkit-backdrop-filter: blur(14px);
-      }
-
-      .cta-container {
-        position: fixed;
-        bottom: max(40px, env(safe-area-inset-bottom));
-        left: 0;
-        right: 0;
-        z-index: 25;
-        display: flex;
-        justify-content: center;
-        pointer-events: none;
-        transition: opacity 500ms ease, transform 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        transform: translateY(20px);
-        opacity: 0;
-      }
-
-      .cta-container.is-visible {
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-      }
-
-      .cta-button {
-        padding: 16px 32px;
-        border: 1px solid rgb(255 255 255 / 0.3);
-        border-radius: 999px;
-        background: linear-gradient(135deg, rgb(255 255 255 / 0.2), rgb(255 255 255 / 0.05));
-        color: #fff;
-        font: inherit;
-        font-size: 15px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-        text-decoration: none;
-        box-shadow: 0 8px 32px rgb(0 0 0 / 0.4);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        cursor: pointer;
-        transition: transform 200ms ease, background 200ms ease;
-      }
-
-      .cta-button:active {
-        transform: scale(0.96);
-        background: linear-gradient(135deg, rgb(255 255 255 / 0.3), rgb(255 255 255 / 0.1));
       }
 
       .scanning-guide {
@@ -241,10 +198,6 @@
 
     <div id="scanningGuide" class="scanning-guide is-hidden">
       <div class="guide-corners"></div>
-    </div>
-
-    <div id="ctaContainer" class="cta-container">
-      <a href="#" class="cta-button">Claim Offer</a>
     </div>
 
 
@@ -312,11 +265,9 @@
       const tapHint = document.getElementById("tapHint");
       const tapButton = document.getElementById("tapButton");
       const scanningGuide = document.getElementById("scanningGuide");
-      const ctaContainer = document.getElementById("ctaContainer");
       let arStarted = false;
       let starting = false;
       let lostTimeout = null;
-      let ctaTimeout = null;
 
       video.muted = true;
       video.defaultMuted = true;
@@ -481,13 +432,6 @@
           
           plane.emit("fadein");
 
-          // Show CTA button 1.5 seconds after video starts
-          if (!ctaContainer.classList.contains("is-visible")) {
-            ctaTimeout = setTimeout(() => {
-              ctaContainer.classList.add("is-visible");
-            }, 1500);
-          }
-
           const materialComponent = plane.components && plane.components.material;
           const materialMap =
             materialComponent && materialComponent.material && materialComponent.material.map;
@@ -501,15 +445,9 @@
       });
 
       target.addEventListener("targetLost", () => {
-        if (ctaTimeout) {
-          clearTimeout(ctaTimeout);
-          ctaTimeout = null;
-        }
-
         lostTimeout = setTimeout(() => {
           setStatus("Scanning");
           scanningGuide.classList.remove("is-hidden");
-          ctaContainer.classList.remove("is-visible");
           plane.emit("fadeout");
           
           setTimeout(() => {
