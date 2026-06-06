@@ -200,6 +200,34 @@
       <div class="guide-corners"></div>
     </div>
 
+    <!-- Live Config Panel -->
+    <button id="cfgToggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 101; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgb(255 255 255 / 0.3); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">⚙️</button>
+
+    <div id="configPanel" style="position: fixed; bottom: 75px; right: 15px; z-index: 100; background: rgba(0,0,0,0.6); padding: 12px; border-radius: 12px; font-family: monospace; font-size: 11px; border: 1px solid #444; backdrop-filter: blur(8px); color: white; width: 200px; display: none;">
+      <h3 style="margin: 0 0 8px 0; font-size: 12px;">🛠 AR Config</h3>
+      
+      <div style="margin-bottom: 10px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Width: <span id="valWidth" style="color:#fff; font-weight:bold;">1.160</span></label>
+        <input type="range" id="cfgWidth" min="0.5" max="2.5" step="0.005" value="1.160" style="width: 100%; accent-color: #f6c958; margin:0;">
+      </div>
+      
+      <div style="margin-bottom: 10px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Height: <span id="valHeight" style="color:#fff; font-weight:bold;">1.375</span></label>
+        <input type="range" id="cfgHeight" min="0.5" max="2.5" step="0.005" value="1.375" style="width: 100%; accent-color: #f6c958; margin:0;">
+      </div>
+
+      <div style="margin-bottom: 10px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Pos X: <span id="valPosX" style="color:#fff; font-weight:bold;">-0.040</span></label>
+        <input type="range" id="cfgPosX" min="-1.5" max="1.5" step="0.005" value="-0.040" style="width: 100%; accent-color: #51e083; margin:0;">
+      </div>
+      
+      <div style="margin-bottom: 4px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Pos Y: <span id="valPosY" style="color:#fff; font-weight:bold;">0.285</span></label>
+        <input type="range" id="cfgPosY" min="-1.5" max="1.5" step="0.005" value="0.285" style="width: 100%; accent-color: #51e083; margin:0;">
+      </div>
+    </div>
+
+
     <a-scene
       mindar-image="imageTargetSrc: assets/targets.mind?v=5; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.001; filterBeta: 100; missTolerance: 5; warmupTolerance: 2;"
       color-space="sRGB"
@@ -264,6 +292,20 @@
       const tapHint = document.getElementById("tapHint");
       const tapButton = document.getElementById("tapButton");
       const scanningGuide = document.getElementById("scanningGuide");
+      
+      // Config panel elements
+      const cfgWidth = document.getElementById("cfgWidth");
+      const cfgHeight = document.getElementById("cfgHeight");
+      const cfgPosX = document.getElementById("cfgPosX");
+      const cfgPosY = document.getElementById("cfgPosY");
+      
+      const valWidth = document.getElementById("valWidth");
+      const valHeight = document.getElementById("valHeight");
+      const valPosX = document.getElementById("valPosX");
+      const valPosY = document.getElementById("valPosY");
+      
+      const configPanel = document.getElementById("configPanel");
+      const cfgToggle = document.getElementById("cfgToggle");
 
       let arStarted = false;
       let starting = false;
@@ -275,6 +317,33 @@
       video.setAttribute("muted", "");
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
+
+      // Live Config Update Logic
+      const updatePlane = () => {
+        // Update the text labels so the user knows the exact number
+        valWidth.textContent = parseFloat(cfgWidth.value).toFixed(3);
+        valHeight.textContent = parseFloat(cfgHeight.value).toFixed(3);
+        valPosX.textContent = parseFloat(cfgPosX.value).toFixed(3);
+        valPosY.textContent = parseFloat(cfgPosY.value).toFixed(3);
+
+        if (!plane) return;
+        plane.setAttribute("width", cfgWidth.value);
+        plane.setAttribute("height", cfgHeight.value);
+        plane.setAttribute("position", `${cfgPosX.value} ${cfgPosY.value} 0`);
+      };
+
+      cfgWidth.addEventListener("input", updatePlane);
+      cfgHeight.addEventListener("input", updatePlane);
+      cfgPosX.addEventListener("input", updatePlane);
+      cfgPosY.addEventListener("input", updatePlane);
+      
+      cfgToggle.addEventListener("click", () => {
+        if (configPanel.style.display === "none") {
+          configPanel.style.display = "block";
+        } else {
+          configPanel.style.display = "none";
+        }
+      });
 
       const setStatus = (text, detected = false) => {
         status.textContent = text;
