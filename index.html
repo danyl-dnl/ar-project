@@ -200,6 +200,33 @@
       <div class="guide-corners"></div>
     </div>
 
+    <!-- Live Config Panel -->
+    <div id="configPanel" style="position: fixed; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; border: 1px solid #444; backdrop-filter: blur(10px); color: white;">
+      <h3 style="margin: 0 0 10px 0; font-size: 14px;">🛠 AR Config</h3>
+      
+      <div style="margin-bottom: 8px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Width (Scale)</label>
+        <input type="number" id="cfgWidth" step="0.005" value="1.0350" style="width: 100px; background: #222; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px;">
+      </div>
+      
+      <div style="margin-bottom: 8px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Height (Scale)</label>
+        <input type="number" id="cfgHeight" step="0.005" value="1.3862" style="width: 100px; background: #222; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px;">
+      </div>
+
+      <div style="margin-bottom: 8px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Pos X (Left/Right)</label>
+        <input type="number" id="cfgPosX" step="0.005" value="0.01" style="width: 100px; background: #222; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px;">
+      </div>
+      
+      <div style="margin-bottom: 8px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Pos Y (Up/Down)</label>
+        <input type="number" id="cfgPosY" step="0.005" value="0.205" style="width: 100px; background: #222; color: white; border: 1px solid #555; padding: 4px; border-radius: 4px;">
+      </div>
+
+      <button id="cfgHide" style="margin-top: 10px; width: 100%; padding: 6px; cursor:pointer; background: #444; color: white; border: none; border-radius: 4px;">Hide Panel</button>
+    </div>
+
 
     <a-scene
       mindar-image="imageTargetSrc: assets/targets.mind?v=5; autoStart: false; uiLoading: no; uiScanning: no; uiError: no; filterMinCF: 0.0001; filterBeta: 0.001; missTolerance: 5; warmupTolerance: 2;"
@@ -265,6 +292,15 @@
       const tapHint = document.getElementById("tapHint");
       const tapButton = document.getElementById("tapButton");
       const scanningGuide = document.getElementById("scanningGuide");
+      
+      // Config panel elements
+      const cfgWidth = document.getElementById("cfgWidth");
+      const cfgHeight = document.getElementById("cfgHeight");
+      const cfgPosX = document.getElementById("cfgPosX");
+      const cfgPosY = document.getElementById("cfgPosY");
+      const configPanel = document.getElementById("configPanel");
+      const cfgHide = document.getElementById("cfgHide");
+
       let arStarted = false;
       let starting = false;
       let lostTimeout = null;
@@ -275,6 +311,23 @@
       video.setAttribute("muted", "");
       video.setAttribute("playsinline", "");
       video.setAttribute("webkit-playsinline", "");
+
+      // Live Config Update Logic
+      const updatePlane = () => {
+        if (!plane) return;
+        plane.setAttribute("width", cfgWidth.value);
+        plane.setAttribute("height", cfgHeight.value);
+        plane.setAttribute("position", `${cfgPosX.value} ${cfgPosY.value} 0`);
+      };
+
+      cfgWidth.addEventListener("input", updatePlane);
+      cfgHeight.addEventListener("input", updatePlane);
+      cfgPosX.addEventListener("input", updatePlane);
+      cfgPosY.addEventListener("input", updatePlane);
+      
+      cfgHide.addEventListener("click", () => {
+        configPanel.style.display = "none";
+      });
 
       const setStatus = (text, detected = false) => {
         status.textContent = text;
