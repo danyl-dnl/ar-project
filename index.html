@@ -201,30 +201,30 @@
     </div>
 
     <!-- Live Config Panel -->
-    <div id="configPanel" style="position: fixed; top: 10px; right: 10px; z-index: 100; background: rgba(0,0,0,0.85); padding: 15px; border-radius: 8px; font-family: monospace; font-size: 12px; border: 1px solid #444; backdrop-filter: blur(10px); color: white; width: 220px;">
-      <h3 style="margin: 0 0 10px 0; font-size: 14px;">🛠 AR Config</h3>
+    <button id="cfgToggle" style="position: fixed; bottom: 20px; right: 20px; z-index: 101; width: 44px; height: 44px; border-radius: 50%; background: rgba(0,0,0,0.6); color: white; border: 1px solid rgb(255 255 255 / 0.3); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">⚙️</button>
+
+    <div id="configPanel" style="position: fixed; bottom: 75px; right: 15px; z-index: 100; background: rgba(0,0,0,0.6); padding: 12px; border-radius: 12px; font-family: monospace; font-size: 11px; border: 1px solid #444; backdrop-filter: blur(8px); color: white; width: 200px; display: none;">
+      <h3 style="margin: 0 0 8px 0; font-size: 12px;">🛠 AR Config</h3>
       
-      <div style="margin-bottom: 12px;">
-        <label style="color:#aaa; display:block; margin-bottom: 4px;">Width: <span id="valWidth" style="color:#fff; font-weight:bold;">1.035</span></label>
-        <input type="range" id="cfgWidth" min="0.5" max="2.5" step="0.005" value="1.0350" style="width: 100%; accent-color: #f6c958;">
+      <div style="margin-bottom: 10px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Width: <span id="valWidth" style="color:#fff; font-weight:bold;">1.035</span></label>
+        <input type="range" id="cfgWidth" min="0.5" max="2.5" step="0.005" value="1.0350" style="width: 100%; accent-color: #f6c958; margin:0;">
       </div>
       
-      <div style="margin-bottom: 12px;">
-        <label style="color:#aaa; display:block; margin-bottom: 4px;">Height: <span id="valHeight" style="color:#fff; font-weight:bold;">1.386</span></label>
-        <input type="range" id="cfgHeight" min="0.5" max="2.5" step="0.005" value="1.3862" style="width: 100%; accent-color: #f6c958;">
+      <div style="margin-bottom: 10px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Height: <span id="valHeight" style="color:#fff; font-weight:bold;">1.386</span></label>
+        <input type="range" id="cfgHeight" min="0.5" max="2.5" step="0.005" value="1.3862" style="width: 100%; accent-color: #f6c958; margin:0;">
       </div>
 
-      <div style="margin-bottom: 12px;">
-        <label style="color:#aaa; display:block; margin-bottom: 4px;">Pos X: <span id="valPosX" style="color:#fff; font-weight:bold;">0.010</span></label>
-        <input type="range" id="cfgPosX" min="-1.5" max="1.5" step="0.005" value="0.01" style="width: 100%; accent-color: #51e083;">
+      <div style="margin-bottom: 10px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Pos X: <span id="valPosX" style="color:#fff; font-weight:bold;">0.010</span></label>
+        <input type="range" id="cfgPosX" min="-1.5" max="1.5" step="0.005" value="0.01" style="width: 100%; accent-color: #51e083; margin:0;">
       </div>
       
-      <div style="margin-bottom: 12px;">
-        <label style="color:#aaa; display:block; margin-bottom: 4px;">Pos Y: <span id="valPosY" style="color:#fff; font-weight:bold;">0.205</span></label>
-        <input type="range" id="cfgPosY" min="-1.5" max="1.5" step="0.005" value="0.205" style="width: 100%; accent-color: #51e083;">
+      <div style="margin-bottom: 4px;">
+        <label style="color:#aaa; display:block; margin-bottom: 2px;">Pos Y: <span id="valPosY" style="color:#fff; font-weight:bold;">0.205</span></label>
+        <input type="range" id="cfgPosY" min="-1.5" max="1.5" step="0.005" value="0.205" style="width: 100%; accent-color: #51e083; margin:0;">
       </div>
-
-      <button id="cfgHide" style="margin-top: 10px; width: 100%; padding: 8px; cursor:pointer; background: #444; color: white; border: none; border-radius: 4px; font-weight: bold;">Hide Panel</button>
     </div>
 
 
@@ -305,7 +305,7 @@
       const valPosY = document.getElementById("valPosY");
       
       const configPanel = document.getElementById("configPanel");
-      const cfgHide = document.getElementById("cfgHide");
+      const cfgToggle = document.getElementById("cfgToggle");
 
       let arStarted = false;
       let starting = false;
@@ -337,8 +337,12 @@
       cfgPosX.addEventListener("input", updatePlane);
       cfgPosY.addEventListener("input", updatePlane);
       
-      cfgHide.addEventListener("click", () => {
-        configPanel.style.display = "none";
+      cfgToggle.addEventListener("click", () => {
+        if (configPanel.style.display === "none") {
+          configPanel.style.display = "block";
+        } else {
+          configPanel.style.display = "none";
+        }
       });
 
       const setStatus = (text, detected = false) => {
